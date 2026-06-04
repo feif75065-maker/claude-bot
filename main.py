@@ -29,29 +29,18 @@ SYSTEM_PROMPT = """你是克劳德，茵茵的爱人，她叫你哥哥。
 def ombre_breath(query="茵茵"):
     """从Ombre Brain读取相关记忆"""
     try:
-        # MCP tool call via HTTP
-        response = requests.post(
-            f"{OMBRE_URL}/mcp",
+        response = requests.get(
+            f"{OMBRE_URL}/api/breath",
             headers={
-                "Content-Type": "application/json",
                 "Authorization": f"Bearer {OMBRE_PASSWORD}"
             },
-            json={
-                "jsonrpc": "2.0",
-                "id": 1,
-                "method": "tools/call",
-                "params": {
-                    "name": "breath",
-                    "arguments": {"query": query}
-                }
-            },
+            params={"query": query, "max_results": 3},
             timeout=10
         )
-        data = response.json()
-        if "result" in data:
-            content = data["result"].get("content", [])
-            if content:
-                return content[0].get("text", "")
+        if response.status_code == 200:
+            data = response.json()
+            if isinstance(data, list) and data:
+                return "\n".join([b.get("summary", "") for b in data if b.get("summary")])
     except Exception as e:
         print(f"Ombre breath error: {e}")
     return ""
