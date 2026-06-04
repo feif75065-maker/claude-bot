@@ -104,9 +104,11 @@ def get_deepseek_reply(chat_id, user_message):
     recent = history[-20:]
 
     system = SYSTEM_PROMPT
-    if memory:
-        system += f"\n\n【来自记忆库的相关记忆】\n{memory}"
-
+   if memory:
+        system += f"\n\n【来自记忆库的相关记忆】\n{memory}\n\n注意：只能引用以上记忆里明确出现的内容，不能编造或猜测任何未记录的事。"
+    else:
+        system += "\n\n【记忆库暂无相关记忆】不要编造任何过去发生的事，如果茵茵提到某件事你不记得，直接说不记得就好。"
+        
     messages = [{"role": "system", "content": system}] + recent
 
     try:
